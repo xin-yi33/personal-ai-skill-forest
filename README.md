@@ -2,6 +2,8 @@
 
 > **A Multi-B+ Tree Based Multi-Level Indexing and Self-Evolution System for Intelligent Agent Skill Management**
 
+English | [中文](README_CN.md)
+
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Paper](https://img.shields.io/badge/Paper-SCI%20Ready-orange.svg)](paper/)
