@@ -1,0 +1,64 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+eggs/
+*.whl
+.eggs/
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env
+.ENV
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Secrets & credentials
+*.key
+*.pem
+*.p12
+*.pfx
+*.secret
+*.token
+credentials.json
+config_local.py
+*.env.local
+*.env.production
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.bak
+*.bak.py
+*.orig
+
+# Large data files (keep under 50MB for GitHub)
+# If you have files > 50MB, use Git LFS or exclude them
