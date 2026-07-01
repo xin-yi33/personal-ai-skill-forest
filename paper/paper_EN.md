@@ -303,6 +303,10 @@ Table 1 presents the pure retrieval performance comparison across three indexing
 
 The forest achieves higher Accuracy@5 (+8.8%) and MRR (+28.8%) than flat ANN, demonstrating that domain-level isolation improves retrieval precision at higher ranks. The latency overhead (1.6ms vs. 0.1ms) is negligible in the end-to-end context where LLM inference dominates.
 
+> **Figure 1**: Pure retrieval accuracy comparison across three indexing structures. The skill forest achieves the highest Accuracy@5 (0.583) and MRR (0.219), demonstrating the value of domain-level isolation.
+>
+> ![Figure 1](../Exp1_Retrieval_Performance/Visualization/fig1_pure_retrieval_EN.png)
+
 #### 6.2.2 End-to-End System Comparison
 
 Table 2 compares the end-to-end performance of flat ANN with LLM reasoning versus the skill forest with M4/M6/M9 mechanisms.
@@ -317,6 +321,10 @@ Table 2 compares the end-to-end performance of flat ANN with LLM reasoning versu
 | Chain Completeness | 0.363 ± 0.036 | **1.000 ± 0.000** | +175.5% |
 
 The forest reduces token consumption by 79.3% while improving chain completeness from 0.363 to 1.000. The dramatic reduction in LLM tokens (578 → 30) directly demonstrates the effectiveness of M9 role reduction.
+
+> **Figure 2**: End-to-end token consumption comparison. The forest reduces total tokens by 79.3% (612 → 127), with LLM tokens reduced by 94.8% (578 → 30) through M9 role reduction.
+>
+> ![Figure 2](../Exp1_Retrieval_Performance/Visualization/fig2_e2e_token_EN.png)
 
 #### 6.2.3 Scale Experiment
 
@@ -335,6 +343,14 @@ Table 3 presents token consumption across different API scales.
 | 5,000 | 612 | 127 | 79.3% | 0.536 | 0.583 |
 
 Token savings remain stable at 79–85% across all scales. The forest's token consumption increases only marginally (108 → 127) as N grows from 100 to 5,000, demonstrating the O(log N) characteristic of the B+ tree structure.
+
+> **Figure 3**: Token consumption as a function of API scale (N = 100–5,000). Forest tokens remain stable (~88–127), while Flat+LLM tokens decrease slightly from 695 to 612.
+>
+> ![Figure 3](../Exp1_Retrieval_Performance/Visualization/fig3_scale_tokens_EN.png)
+
+> **Figure 4**: LLM burden comparison — the proportion of total tokens consumed by LLM reasoning. The forest reduces LLM burden from 94.5% to 23.6%, offloading reasoning to structured mechanisms.
+>
+> ![Figure 4](../Exp1_Retrieval_Performance/Visualization/fig5_llm_burden_EN.png)
 
 ### 6.3 Experiment 2: Ablation Study
 
@@ -374,6 +390,14 @@ Table 5 presents the ablation results for each mechanism.
 - **M5** improves task completion by +0.340, important for ambiguous queries
 - **M9** reduces token consumption by 210 tokens (63% reduction), demonstrating the efficiency value of role reduction
 
+> **Figure 5**: Ablation study overview — contribution of each mechanism to system performance. M4 (dependency tracing) and M6 (parameter merging) have the largest impact on their respective metrics.
+>
+> ![Figure 5](../Exp2_Ablation_Study/Visualization/fig_ablation_overview_EN.png)
+
+> **Figure 6**: M2 routing layer comparison — forest (5 trees) vs. single B+ tree vs. flat ANN. The forest achieves 130% higher accuracy than the single tree.
+>
+> ![Figure 6](../Exp2_Ablation_Study/Visualization/fig_M2_routing_EN.png)
+
 ### 6.4 Experiment 3: Threshold δ Sensitivity Analysis
 
 #### 6.4.1 Δ Distribution
@@ -393,6 +417,10 @@ The distribution of Top-1/Top-2 cosine similarity gaps (Δ) across 200 test quer
 | Intent Ambiguity Rate | 30.0% |
 
 The low mean Δ (0.0466) indicates that most queries have ambiguous intent at the domain level, motivating the need for multi-candidate selection.
+
+> **Figure 7**: Distribution of Top-1/Top-2 cosine similarity gaps (Δ) across 200 test queries. The low mean (0.0466) and wide spread indicate pervasive intent ambiguity.
+>
+> ![Figure 7](../Exp3_Threshold_Sensitivity/Visualization/fig_delta_distribution_EN.png)
 
 #### 6.4.2 Threshold Scan Results
 
@@ -414,6 +442,14 @@ The low mean Δ (0.0466) indicates that most queries have ambiguous intent at th
 | 0.30 | 100.0% | 41.5% | 58.5% | 0.585 | 120 |
 
 **Optimal δ = 0.25**: Task completion rate reaches its maximum (0.585) at δ = 0.25, with diminishing returns beyond this point. The token overhead (120 additional tokens per query) is acceptable given the 100% trigger rate ensures no ambiguous queries are mishandled.
+
+> **Figure 8**: Threshold sensitivity analysis — task completion rate, trigger rate, and misroute rate as functions of δ. Task completion peaks at δ = 0.25.
+>
+> ![Figure 8](../Exp3_Threshold_Sensitivity/Visualization/fig_threshold_sensitivity_EN.png)
+
+> **Figure 9**: Trigger rate vs. task completion rate across threshold values. The optimal operating point (δ = 0.25) achieves 100% trigger rate with maximum task completion.
+>
+> ![Figure 9](../Exp3_Threshold_Sensitivity/Visualization/fig_trigger_vs_completion_EN.png)
 
 ### 6.5 Experiment 4: Action Reflection — Pattern Extractor Effectiveness
 
@@ -447,6 +483,14 @@ The evaluation uses 100 conversations: 70 real-scenario dialogues covering 4 ext
 | **Macro Average** | **0.932** | **0.804** | **0.853** |
 
 E2 (Default Preferences) is most robust to noise (F1 drops only 0.002), while E1 (Error Patterns) shows the largest recall degradation (0.840 → 0.744, -0.096). The macro-average F1 drops from 0.881 to 0.853 (-0.028), indicating moderate noise resilience.
+
+> **Figure 10**: F1 scores of the four pattern extractors under clean and noisy (30%) conditions. E3 (Workflows) achieves the highest F1 (0.926), while E4 (Explicit Instructions) shows the lowest (0.795).
+>
+> ![Figure 10](../Exp4_Action_Reflection/Visualization/fig_extractor_f1_EN.png)
+
+> **Figure 11**: Detailed precision, recall, and F1 metrics for each extractor. E2 shows the most stable performance across noise conditions.
+>
+> ![Figure 11](../Exp4_Action_Reflection/Visualization/fig_extractor_metrics_detail_EN.png)
 
 ### 6.6 Experiment 5: Thought Reflection — Meta-Cognitive Strategy Effectiveness
 
@@ -486,6 +530,14 @@ Table 10 shows the per-scenario improvement from Round 1 to Round 3 for selected
 
 The largest improvements appear in Deployment Strategy (+32.9pp) and Data Analysis Strategy (+29.0pp), which involve complex multi-step workflows that benefit most from accumulated strategies.
 
+> **Figure 12**: Learning progression across three rounds — success rate, step count, and token consumption. The steepest improvement occurs between Round 1 and Round 2 (+20.5pp success rate).
+>
+> ![Figure 12](../Exp5_Thought_Reflection/Visualization/fig_learning_progression_EN.png)
+
+> **Figure 13**: Per-scenario improvement heatmap showing success rate gains across all 8 scenarios and 3 learning rounds. Deployment Strategy and Data Analysis Strategy show the largest gains.
+>
+> ![Figure 13](../Exp5_Thought_Reflection/Visualization/fig_scenario_heatmap_EN.png)
+
 ### 6.7 Experiment 6: Token Consumption Theory and Empirics
 
 #### 6.7.1 Normal Scenarios (Clear Intent)
@@ -521,6 +573,14 @@ The largest improvements appear in Deployment Strategy (+32.9pp) and Data Analys
 2. Flat+LLM tokens decrease slightly with scale (512 → 485) due to FAISS retrieval characteristics
 3. Abnormal scenarios consume ~100 more tokens for Flat+LLM (cross-domain disambiguation) and ~14 more for Forest (ABCD candidate display)
 4. Savings remain stable at 82% ± 2% across all conditions
+
+> **Figure 14**: Token consumption comparison between normal and abnormal scenarios. Abnormal scenarios consume ~100 more tokens for Flat+LLM but only ~14 more for the forest.
+>
+> ![Figure 14](../Exp6_Token_Consumption/Visualization/fig_场景对比_EN.png)
+
+> **Figure 15**: Token savings trend across API scales (N = 500–5,000). Savings remain stable at 82% ± 2% in both normal and abnormal scenarios.
+>
+> ![Figure 15](../Exp6_Token_Consumption/Visualization/fig_节省趋势_EN.png)
 
 ---
 
