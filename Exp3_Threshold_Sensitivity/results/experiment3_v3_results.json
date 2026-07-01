@@ -1,0 +1,142 @@
+{
+  "optimal_threshold": 0.25,
+  "routing_accuracy": 0.585,
+  "intent_ambiguity_rate": 0.3,
+  "delta_stats": {
+    "mean": 0.04656923375538168,
+    "std": 0.04807197041061756,
+    "median": 0.0341246590083184,
+    "p25": 0.010395172904754807,
+    "p75": 0.05782796897894382,
+    "min": 0.0004217601330446241,
+    "max": 0.24949715762202707
+  },
+  "threshold_table": [
+    {
+      "delta": 0.01,
+      "trigger_rate": 0.245,
+      "n_triggered": 49,
+      "misroute_rate": 0.7346938775510204,
+      "ambiguity_in_triggered": 0.6530612244897959,
+      "abcd_success": 0.26530612244897955,
+      "task_completion": 0.506675,
+      "token_overhead": 29.4
+    },
+    {
+      "delta": 0.02,
+      "trigger_rate": 0.36,
+      "n_triggered": 72,
+      "misroute_rate": 0.6944444444444444,
+      "ambiguity_in_triggered": 0.5138888888888888,
+      "abcd_success": 0.3055555555555556,
+      "task_completion": 0.4844,
+      "token_overhead": 43.199999999999996
+    },
+    {
+      "delta": 0.03,
+      "trigger_rate": 0.455,
+      "n_triggered": 91,
+      "misroute_rate": 0.6373626373626373,
+      "ambiguity_in_triggered": 0.45054945054945056,
+      "abcd_success": 0.3626373626373627,
+      "task_completion": 0.48382499999999995,
+      "token_overhead": 54.6
+    },
+    {
+      "delta": 0.05,
+      "trigger_rate": 0.66,
+      "n_triggered": 132,
+      "misroute_rate": 0.5606060606060606,
+      "ambiguity_in_triggered": 0.36363636363636365,
+      "abcd_success": 0.43939393939393945,
+      "task_completion": 0.4889,
+      "token_overhead": 79.2
+    },
+    {
+      "delta": 0.08,
+      "trigger_rate": 0.85,
+      "n_triggered": 170,
+      "misroute_rate": 0.4764705882352941,
+      "ambiguity_in_triggered": 0.3411764705882353,
+      "abcd_success": 0.5235294117647059,
+      "task_completion": 0.5327500000000001,
+      "token_overhead": 102.0
+    },
+    {
+      "delta": 0.1,
+      "trigger_rate": 0.865,
+      "n_triggered": 173,
+      "misroute_rate": 0.47398843930635837,
+      "ambiguity_in_triggered": 0.34104046242774566,
+      "abcd_success": 0.5260115606936416,
+      "task_completion": 0.533975,
+      "token_overhead": 103.8
+    },
+    {
+      "delta": 0.12,
+      "trigger_rate": 0.895,
+      "n_triggered": 179,
+      "misroute_rate": 0.46368715083798884,
+      "ambiguity_in_triggered": 0.33519553072625696,
+      "abcd_success": 0.5363128491620112,
+      "task_completion": 0.5414249999999999,
+      "token_overhead": 107.4
+    },
+    {
+      "delta": 0.15,
+      "trigger_rate": 0.935,
+      "n_triggered": 187,
+      "misroute_rate": 0.44385026737967914,
+      "ambiguity_in_triggered": 0.32085561497326204,
+      "abcd_success": 0.5561497326203209,
+      "task_completion": 0.558025,
+      "token_overhead": 112.2
+    },
+    {
+      "delta": 0.18,
+      "trigger_rate": 0.98,
+      "n_triggered": 196,
+      "misroute_rate": 0.42346938775510207,
+      "ambiguity_in_triggered": 0.30612244897959184,
+      "abcd_success": 0.5765306122448979,
+      "task_completion": 0.5767,
+      "token_overhead": 117.6
+    },
+    {
+      "delta": 0.2,
+      "trigger_rate": 0.985,
+      "n_triggered": 197,
+      "misroute_rate": 0.4213197969543147,
+      "ambiguity_in_triggered": 0.30456852791878175,
+      "abcd_success": 0.5786802030456852,
+      "task_completion": 0.5787749999999999,
+      "token_overhead": 118.2
+    },
+    {
+      "delta": 0.25,
+      "trigger_rate": 1.0,
+      "n_triggered": 200,
+      "misroute_rate": 0.415,
+      "ambiguity_in_triggered": 0.3,
+      "abcd_success": 0.585,
+      "task_completion": 0.585,
+      "token_overhead": 120.0
+    },
+    {
+      "delta": 0.3,
+      "trigger_rate": 1.0,
+      "n_triggered": 200,
+      "misroute_rate": 0.415,
+      "ambiguity_in_triggered": 0.3,
+      "abcd_success": 0.585,
+      "task_completion": 0.585,
+      "token_overhead": 120.0
+    }
+  ],
+  "best_analysis": {
+    "trigger_rate": 1.0,
+    "misroute_rate": 0.415,
+    "task_completion": 0.585,
+    "token_overhead": 120.0
+  }
+}

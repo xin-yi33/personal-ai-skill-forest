@@ -1,0 +1,818 @@
+[
+  [
+    {
+      "level": "root",
+      "params": {
+        "font_size": "12pt",
+        "animation": "none",
+        "color_scheme": "neutral"
+      },
+      "source": "system_default"
+    },
+    {
+      "level": "middle",
+      "params": {
+        "font_size": "14pt",
+        "animation": "subtle",
+        "color_scheme": "cool"
+      },
+      "source": "domain_template"
+    },
+    {
+      "level": "leaf",
+      "params": {
+        "font_size": "16pt",
+        "animation": "dynamic",
+        "color_scheme": "warm"
+      },
+      "source": "skill_style"
+    },
+    {
+      "level": "user",
+      "params": {
+        "font_size": "16pt",
+        "animation": "subtle",
+        "color_scheme": "warm"
+      },
+      "source": "user_explicit"
+    }
+  ],
+  [
+    {
+      "level": "root",
+      "params": {
+        "layout": "single",
+        "font_size": "12pt",
+        "color_scheme": "neutral",
+        "background": "white"
+      },
+      "source": "system_default"
+    },
+    {
+      "level": "middle",
+      "params": {
+        "layout": "two_column",
+        "font_size": "14pt",
+        "color_scheme": "cool",
+        "background": "light_gray"
+      },
+      "source": "domain_template"
+    },
+    {
+      "level": "leaf",
+      "params": {
+        "layout": "grid",
+        "font_size": "16pt",
+        "color_scheme": "warm",
+        "background": "dark"
+      },
+      "source": "skill_style"
+    },
+    {
+      "level": "user",
+      "params": {
+        "layout": "two_column",
+        "font_size": "16pt",
+        "color_scheme": "warm",
+        "background": "dark"
+      },
+      "source": "user_explicit"
+    }
+  ],
+  [
+    {
+      "level": "root",
+      "params": {
+        "layout": "single",
+        "font_size": "12pt",
+        "background": "white"
+      },
+      "source": "system_default"
+    },
+    {
+      "level": "middle",
+      "params": {
+        "layout": "two_column",
+        "font_size": "14pt",
+        "background": "light_gray"
+      },
+      "source": "domain_template"
+    },
+    {
+      "level": "leaf",
+      "params": {
+        "layout": "grid",
+        "font_size": "16pt",
+        "background": "dark"
+      },
+      "source": "skill_style"
+    },
+    {
+      "level": "user",
+      "params": {
+        "layout": "two_column",
+        "font_size": "16pt",
+        "background": "dark"
+      },
+      "source": "user_explicit"
+    }
+  ],
+  [
+    {
+      "level": "root",
+      "params": {
+        "animation": "none",
+        "layout": "single",
+        "background": "white",
+        "font_size": "12pt"
+      },
+      "source": "system_default"
+    },
+    {
+      "level": "middle",
+      "params": {
+        "animation": "subtle",
+        "layout": "two_column",
+        "background": "light_gray",
+        "font_size": "14pt"
+      },
+      "source": "domain_template"
+    },
+    {
+      "level": "leaf",
+      "params": {
+        "animation": "dynamic",
+        "layout": "grid",
+        "background": "dark",
+        "font_size": "16pt"
+      },
+      "source": "skill_style"
+    },
+    {
+      "level": "user",
+      "params": {
+        "animation": "subtle",
+        "layout": "two_column",
+        "background": "dark",
+        "font_size": "16pt"
+      },
+      "source": "user_explicit"
+    }
+  ],
+  [
+    {
+      "level": "root",
+      "params": {
+        "background": "white",
+        "color_scheme": "neutral",
+        "animation": "none",
+        "font_size": "12pt"
+      },
+      "source": "system_default"
+    },
+    {
+      "level": "middle",
+      "params": {
+        "background": "light_gray",
+        "color_scheme": "cool",
+        "animation": "subtle",
+        "font_size": "14pt"
+      },
+      "source": "domain_template"
+    },
+    {
+      "level": "leaf",
+      "params": {
+        "background": "dark",
+        "color_scheme": "warm",
+        "animation": "dynamic",
+        "font_size": "16pt"
+      },
+      "source": "skill_style"
+    },
+    {
+      "level": "user",
+      "params": {
+        "background": "dark",
+        "color_scheme": "warm",
+        "animation": "subtle",
+        "font_size": "16pt"
+      },
+      "source": "user_explicit"
+    }
+  ],
+  [
+    {
+      "level": "root",
+      "params": {
+        "color_scheme": "neutral",
+        "font_size": "12pt",
+        "animation": "none",
+        "background": "white"
+      },
+      "source": "system_default"
+    },
+    {
+      "level": "middle",
+      "params": {
+        "color_scheme": "cool",
+        "font_size": "14pt",
+        "animation": "subtle",
+        "background": "light_gray"
+      },
+      "source": "domain_template"
+    },
+    {
+      "level": "leaf",
+      "params": {
+        "color_scheme": "warm",
+        "font_size": "16pt",
+        "animation": "dynamic",
+        "background": "dark"
+      },
+      "source": "skill_style"
+    },
+    {
+      "level": "user",
+      "params": {
+        "color_scheme": "warm",
+        "font_size": "16pt",
+        "animation": "subtle",
+        "background": "dark"
+      },
+      "source": "user_explicit"
+    }
+  ],
+  [
+    {
+      "level": "root",
+      "params": {
+        "font_size": "12pt",
+        "color_scheme": "neutral",
+        "background": "white",
+        "layout": "single"
+      },
+      "source": "system_default"
+    },
+    {
+      "level": "middle",
+      "params": {
+        "font_size": "14pt",
+        "color_scheme": "cool",
+        "background": "light_gray",
+        "layout": "two_column"
+      },
+      "source": "domain_template"
+    },
+    {
+      "level": "leaf",
+      "params": {
+        "font_size": "16pt",
+        "color_scheme": "warm",
+        "background": "dark",
+        "layout": "grid"
+      },
+      "source": "skill_style"
+    },
+    {
+      "level": "user",
+      "params": {
+        "font_size": "16pt",
+        "color_scheme": "warm",
+        "background": "dark",
+        "layout": "two_column"
+      },
+      "source": "user_explicit"
+    }
+  ],
+  [
+    {
+      "level": "root",
+      "params": {
+        "background": "white",
+        "layout": "single",
+        "font_size": "12pt"
+      },
+      "source": "system_default"
+    },
+    {
+      "level": "middle",
+      "params": {
+        "background": "light_gray",
+        "layout": "two_column",
+        "font_size": "14pt"
+      },
+      "source": "domain_template"
+    },
+    {
+      "level": "leaf",
+      "params": {
+        "background": "dark",
+        "layout": "grid",
+        "font_size": "16pt"
+      },
+      "source": "skill_style"
+    },
+    {
+      "level": "user",
+      "params": {
+        "background": "dark",
+        "layout": "two_column",
+        "font_size": "16pt"
+      },
+      "source": "user_explicit"
+    }
+  ],
+  [
+    {
+      "level": "root",
+      "params": {
+        "background": "white",
+        "font_size": "12pt",
+        "color_scheme": "neutral",
+        "animation": "none"
+      },
+      "source": "system_default"
+    },
+    {
+      "level": "middle",
+      "params": {
+        "background": "light_gray",
+        "font_size": "14pt",
+        "color_scheme": "cool",
+        "animation": "subtle"
+      },
+      "source": "domain_template"
+    },
+    {
+      "level": "leaf",
+      "params": {
+        "background": "dark",
+        "font_size": "16pt",
+        "color_scheme": "warm",
+        "animation": "dynamic"
+      },
+      "source": "skill_style"
+    },
+    {
+      "level": "user",
+      "params": {
+        "background": "dark",
+        "font_size": "16pt",
+        "color_scheme": "warm",
+        "animation": "subtle"
+      },
+      "source": "user_explicit"
+    }
+  ],
+  [
+    {
+      "level": "root",
+      "params": {
+        "background": "white",
+        "font_size": "12pt",
+        "animation": "none",
+        "layout": "single"
+      },
+      "source": "system_default"
+    },
+    {
+      "level": "middle",
+      "params": {
+        "background": "light_gray",
+        "font_size": "14pt",
+        "animation": "subtle",
+        "layout": "two_column"
+      },
+      "source": "domain_template"
+    },
+    {
+      "level": "leaf",
+      "params": {
+        "background": "dark",
+        "font_size": "16pt",
+        "animation": "dynamic",
+        "layout": "grid"
+      },
+      "source": "skill_style"
+    },
+    {
+      "level": "user",
+      "params": {
+        "background": "dark",
+        "font_size": "16pt",
+        "animation": "subtle",
+        "layout": "two_column"
+      },
+      "source": "user_explicit"
+    }
+  ],
+  [
+    {
+      "level": "root",
+      "params": {
+        "font_size": "12pt",
+        "layout": "single",
+        "animation": "none",
+        "color_scheme": "neutral"
+      },
+      "source": "system_default"
+    },
+    {
+      "level": "middle",
+      "params": {
+        "font_size": "14pt",
+        "layout": "two_column",
+        "animation": "subtle",
+        "color_scheme": "cool"
+      },
+      "source": "domain_template"
+    },
+    {
+      "level": "leaf",
+      "params": {
+        "font_size": "16pt",
+        "layout": "grid",
+        "animation": "dynamic",
+        "color_scheme": "warm"
+      },
+      "source": "skill_style"
+    },
+    {
+      "level": "user",
+      "params": {
+        "font_size": "16pt",
+        "layout": "two_column",
+        "animation": "subtle",
+        "color_scheme": "warm"
+      },
+      "source": "user_explicit"
+    }
+  ],
+  [
+    {
+      "level": "root",
+      "params": {
+        "layout": "single",
+        "font_size": "12pt",
+        "color_scheme": "neutral"
+      },
+      "source": "system_default"
+    },
+    {
+      "level": "middle",
+      "params": {
+        "layout": "two_column",
+        "font_size": "14pt",
+        "color_scheme": "cool"
+      },
+      "source": "domain_template"
+    },
+    {
+      "level": "leaf",
+      "params": {
+        "layout": "grid",
+        "font_size": "16pt",
+        "color_scheme": "warm"
+      },
+      "source": "skill_style"
+    },
+    {
+      "level": "user",
+      "params": {
+        "layout": "two_column",
+        "font_size": "16pt",
+        "color_scheme": "warm"
+      },
+      "source": "user_explicit"
+    }
+  ],
+  [
+    {
+      "level": "root",
+      "params": {
+        "animation": "none",
+        "color_scheme": "neutral",
+        "font_size": "12pt",
+        "layout": "single"
+      },
+      "source": "system_default"
+    },
+    {
+      "level": "middle",
+      "params": {
+        "animation": "subtle",
+        "color_scheme": "cool",
+        "font_size": "14pt",
+        "layout": "two_column"
+      },
+      "source": "domain_template"
+    },
+    {
+      "level": "leaf",
+      "params": {
+        "animation": "dynamic",
+        "color_scheme": "warm",
+        "font_size": "16pt",
+        "layout": "grid"
+      },
+      "source": "skill_style"
+    },
+    {
+      "level": "user",
+      "params": {
+        "animation": "subtle",
+        "color_scheme": "warm",
+        "font_size": "16pt",
+        "layout": "two_column"
+      },
+      "source": "user_explicit"
+    }
+  ],
+  [
+    {
+      "level": "root",
+      "params": {
+        "color_scheme": "neutral",
+        "layout": "single",
+        "animation": "none",
+        "font_size": "12pt"
+      },
+      "source": "system_default"
+    },
+    {
+      "level": "middle",
+      "params": {
+        "color_scheme": "cool",
+        "layout": "two_column",
+        "animation": "subtle",
+        "font_size": "14pt"
+      },
+      "source": "domain_template"
+    },
+    {
+      "level": "leaf",
+      "params": {
+        "color_scheme": "warm",
+        "layout": "grid",
+        "animation": "dynamic",
+        "font_size": "16pt"
+      },
+      "source": "skill_style"
+    },
+    {
+      "level": "user",
+      "params": {
+        "color_scheme": "warm",
+        "layout": "two_column",
+        "animation": "subtle",
+        "font_size": "16pt"
+      },
+      "source": "user_explicit"
+    }
+  ],
+  [
+    {
+      "level": "root",
+      "params": {
+        "background": "white",
+        "font_size": "12pt",
+        "animation": "none",
+        "color_scheme": "neutral"
+      },
+      "source": "system_default"
+    },
+    {
+      "level": "middle",
+      "params": {
+        "background": "light_gray",
+        "font_size": "14pt",
+        "animation": "subtle",
+        "color_scheme": "cool"
+      },
+      "source": "domain_template"
+    },
+    {
+      "level": "leaf",
+      "params": {
+        "background": "dark",
+        "font_size": "16pt",
+        "animation": "dynamic",
+        "color_scheme": "warm"
+      },
+      "source": "skill_style"
+    },
+    {
+      "level": "user",
+      "params": {
+        "background": "dark",
+        "font_size": "16pt",
+        "animation": "subtle",
+        "color_scheme": "warm"
+      },
+      "source": "user_explicit"
+    }
+  ],
+  [
+    {
+      "level": "root",
+      "params": {
+        "animation": "none",
+        "layout": "single",
+        "background": "white"
+      },
+      "source": "system_default"
+    },
+    {
+      "level": "middle",
+      "params": {
+        "animation": "subtle",
+        "layout": "two_column",
+        "background": "light_gray"
+      },
+      "source": "domain_template"
+    },
+    {
+      "level": "leaf",
+      "params": {
+        "animation": "dynamic",
+        "layout": "grid",
+        "background": "dark"
+      },
+      "source": "skill_style"
+    },
+    {
+      "level": "user",
+      "params": {
+        "animation": "subtle",
+        "layout": "two_column",
+        "background": "dark"
+      },
+      "source": "user_explicit"
+    }
+  ],
+  [
+    {
+      "level": "root",
+      "params": {
+        "background": "white",
+        "color_scheme": "neutral",
+        "animation": "none",
+        "font_size": "12pt"
+      },
+      "source": "system_default"
+    },
+    {
+      "level": "middle",
+      "params": {
+        "background": "light_gray",
+        "color_scheme": "cool",
+        "animation": "subtle",
+        "font_size": "14pt"
+      },
+      "source": "domain_template"
+    },
+    {
+      "level": "leaf",
+      "params": {
+        "background": "dark",
+        "color_scheme": "warm",
+        "animation": "dynamic",
+        "font_size": "16pt"
+      },
+      "source": "skill_style"
+    },
+    {
+      "level": "user",
+      "params": {
+        "background": "dark",
+        "color_scheme": "warm",
+        "animation": "subtle",
+        "font_size": "16pt"
+      },
+      "source": "user_explicit"
+    }
+  ],
+  [
+    {
+      "level": "root",
+      "params": {
+        "color_scheme": "neutral",
+        "background": "white",
+        "animation": "none",
+        "layout": "single"
+      },
+      "source": "system_default"
+    },
+    {
+      "level": "middle",
+      "params": {
+        "color_scheme": "cool",
+        "background": "light_gray",
+        "animation": "subtle",
+        "layout": "two_column"
+      },
+      "source": "domain_template"
+    },
+    {
+      "level": "leaf",
+      "params": {
+        "color_scheme": "warm",
+        "background": "dark",
+        "animation": "dynamic",
+        "layout": "grid"
+      },
+      "source": "skill_style"
+    },
+    {
+      "level": "user",
+      "params": {
+        "color_scheme": "warm",
+        "background": "dark",
+        "animation": "subtle",
+        "layout": "two_column"
+      },
+      "source": "user_explicit"
+    }
+  ],
+  [
+    {
+      "level": "root",
+      "params": {
+        "background": "white",
+        "color_scheme": "neutral",
+        "layout": "single"
+      },
+      "source": "system_default"
+    },
+    {
+      "level": "middle",
+      "params": {
+        "background": "light_gray",
+        "color_scheme": "cool",
+        "layout": "two_column"
+      },
+      "source": "domain_template"
+    },
+    {
+      "level": "leaf",
+      "params": {
+        "background": "dark",
+        "color_scheme": "warm",
+        "layout": "grid"
+      },
+      "source": "skill_style"
+    },
+    {
+      "level": "user",
+      "params": {
+        "background": "dark",
+        "color_scheme": "warm",
+        "layout": "two_column"
+      },
+      "source": "user_explicit"
+    }
+  ],
+  [
+    {
+      "level": "root",
+      "params": {
+        "background": "white",
+        "animation": "none",
+        "color_scheme": "neutral",
+        "font_size": "12pt"
+      },
+      "source": "system_default"
+    },
+    {
+      "level": "middle",
+      "params": {
+        "background": "light_gray",
+        "animation": "subtle",
+        "color_scheme": "cool",
+        "font_size": "14pt"
+      },
+      "source": "domain_template"
+    },
+    {
+      "level": "leaf",
+      "params": {
+        "background": "dark",
+        "animation": "dynamic",
+        "color_scheme": "warm",
+        "font_size": "16pt"
+      },
+      "source": "skill_style"
+    },
+    {
+      "level": "user",
+      "params": {
+        "background": "dark",
+        "animation": "subtle",
+        "color_scheme": "warm",
+        "font_size": "16pt"
+      },
+      "source": "user_explicit"
+    }
+  ]
+]
