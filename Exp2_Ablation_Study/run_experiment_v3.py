@@ -35,7 +35,7 @@ from shared.visualization_utils import COLORS, ABLATION_LABELS
 import faiss
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE, 'data')
+DATA_DIR = os.path.join(os.path.dirname(BASE), 'shared', 'data')
 SHARED_DATA_DIR = os.path.join(os.path.dirname(BASE), 'shared', 'data')
 RES_DIR = os.path.join(BASE, 'results')
 VIS_DIR = os.path.join(BASE, 'Visualization')

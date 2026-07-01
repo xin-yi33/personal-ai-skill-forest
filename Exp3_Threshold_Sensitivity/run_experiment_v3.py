@@ -18,7 +18,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from shared.data_generator import load_dataset
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE, 'data')
+DATA_DIR = os.path.join(os.path.dirname(BASE), 'shared', 'data')
 RES_DIR = os.path.join(BASE, 'results')
 VIS_DIR = os.path.join(BASE, 'Visualization')
 os.makedirs(RES_DIR, exist_ok=True)

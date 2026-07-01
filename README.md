@@ -73,6 +73,7 @@ The **Personal AI Skill Forest** is a novel architecture that introduces B+ tree
 
 ```
 personal-ai-skill-forest/
+├── .gitignore                             # Git ignore rules
 ├── README.md                              # This file
 ├── requirements.txt                       # Python dependencies
 ├── verify_fixes.py                        # Verification script
@@ -81,7 +82,7 @@ personal-ai-skill-forest/
 │   ├── paper_EN.md                        # Full English paper (SCI format)
 │   └── paper_CN.md                        # Full Chinese paper
 │
-├── shared/                                # Core implementations
+├── shared/                                # Core implementations & shared data
 │   ├── __init__.py
 │   ├── bplus_tree.py                      # B+ tree with multi-level traversal
 │   ├── mechanisms.py                      # M4/M5/M6/M7/M9 implementations
@@ -89,7 +90,7 @@ personal-ai-skill-forest/
 │   ├── enrich_data.py                     # Data enrichment (dependencies, conversations)
 │   ├── prepare_data.py                    # Data preparation pipeline
 │   ├── visualization_utils.py             # Plotting utilities
-│   └── data/                              # Datasets
+│   └── data/                              # ** Single source of truth for all datasets **
 │       ├── all_apis.json                  # 5,000 APIs (original)
 │       ├── all_apis_enriched.json         # 5,000 APIs (all with dependencies)
 │       ├── test_queries.json              # 200 test queries
@@ -100,41 +101,37 @@ personal-ai-skill-forest/
 │
 ├── Exp1_Retrieval_Performance/            # Experiment 1: Retrieval comparison
 │   ├── run_experiment.py                  # Main experiment script
-│   ├── data/                              # Experiment data
 │   ├── results/                           # JSON results
 │   └── Visualization/                     # Generated figures & tables
 │
 ├── Exp2_Ablation_Study/                   # Experiment 2: Ablation study
-│   ├── run_experiment_v3.py               # Main experiment (latest version)
+│   ├── run_experiment_v3.py               # Main experiment script
 │   ├── run_m2_experiment.py               # M2-specific experiment
-│   ├── data/
 │   ├── results/
 │   └── Visualization/
 │
 ├── Exp3_Threshold_Sensitivity/            # Experiment 3: Threshold δ analysis
-│   ├── run_experiment_v3.py               # Main experiment (latest version)
-│   ├── data/
+│   ├── run_experiment_v3.py               # Main experiment script
 │   ├── results/
 │   └── Visualization/
 │
 ├── Exp4_Action_Reflection/                # Experiment 4: Pattern extractors
-│   ├── run_experiment_v2.py               # Main experiment (latest version)
-│   ├── data/
+│   ├── run_experiment_v2.py               # Main experiment script
 │   ├── results/
 │   └── Visualization/
 │
 ├── Exp5_Thought_Reflection/               # Experiment 5: Meta-cognitive strategies
-│   ├── run_experiment_v2.py               # Main experiment (latest version)
-│   ├── data/
+│   ├── run_experiment_v2.py               # Main experiment script
 │   ├── results/
 │   └── Visualization/
 │
 └── Exp6_Token_Consumption/                # Experiment 6: Token efficiency
-    ├── run_experiment_v3.py               # Main experiment (latest version)
-    ├── data/
+    ├── run_experiment_v3.py               # Main experiment script
     ├── results/
     └── Visualization/
 ```
+
+> **Note**: All experiments load data from `shared/data/` (single source of truth). No duplicate data files in experiment folders.
 
 ---
 
