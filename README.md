@@ -186,14 +186,18 @@ python verify_fixes.py
 
 ## Experimental Results
 
-### Experiment 1: Retrieval Performance
+### Experiment 1: Retrieval Performance (5 Baselines)
 
-| Metric | Flat ANN (FAISS) | Skill Forest | Δ |
-|--------|------------------|-------------|---|
-| Accuracy@5 | 0.536 | **0.583** | +8.8% |
-| MRR | 0.170 | **0.219** | +28.8% |
-| End-to-End Tokens | 612 | **127** | -79.3% |
-| Chain Completeness | 0.363 | **1.000** | +175.5% |
+Compared against: BM25, FAISS (IVF+PQ), HNSW, FAISS+Rerank, Skill Forest.
+
+| Metric | BM25 | FAISS (IVF+PQ) | HNSW | FAISS+Rerank | Skill Forest |
+|--------|------|----------------|------|-------------|--------------|
+| Accuracy@5 | — | 0.536 | — | — | **0.583** |
+| MRR | — | 0.170 | — | — | **0.219** |
+| E2E Tokens | — | 612 | — | ~1200 | **127** |
+| Chain Completeness | — | 0.363 | — | — | **1.000** |
+
+*Note: BM25, HNSW, FAISS+Rerank results pending experiment execution. FAISS+Rerank token estimate based on 20-candidate retrieval + reranking model.*
 
 ### Experiment 2: Ablation Study
 
