@@ -27,6 +27,12 @@ from shared.mechanisms import (
     trace_dependency_chain, count_tokens,
     measure_e2e_tokens_flat_llm, measure_e2e_tokens_forest
 )
+from shared.baselines import (
+    build_hnsw_index, search_hnsw,
+    build_bm25_index, search_bm25,
+    search_faiss_rerank, measure_e2e_tokens_faiss_rerank,
+    evaluate_baseline
+)
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(os.path.dirname(BASE), 'shared', 'data')
@@ -153,36 +159,69 @@ def get_correct_subcat(query, skill_number_map):
 # Layer 1: Pure Retrieval (subcat-level evaluation)
 # ============================================================
 def run_pure_retrieval(all_apis, test_queries, domains_dict, n_runs=5):
+    """Layer 1: Pure retrieval comparison across multiple baselines.
+    
+    Baselines: FAISS (IVF+PQ), HNSW, BM25, FAISS+Rerank, Skill Forest
+    """
     embeddings = np.array([a['embedding'] for a in all_apis])
     faiss_idx = build_faiss_index(embeddings)
+    hnsw_idx = build_hnsw_index(embeddings)
+    bm25_idx = build_bm25_index(all_apis)
     forest = build_forest(all_apis, domains_dict)
     skill_number_map = build_skill_number_map(all_apis)
 
+    methods = ['flat', 'hnsw', 'bm25', 'faiss_rerank', 'forest']
     metrics = ['acc@1','acc@3','acc@5','mrr','latency','tokens','routing_acc']
-    all_results = {m: {k: [] for k in metrics} for m in ['flat','forest']}
+    all_results = {m: {k: [] for k in metrics} for m in methods}
 
     for run in range(n_runs):
-        np.random.seed(42 + run * 17)  # Different seed per run for subsampling
-        # Subsample queries for non-zero variance across runs
+        np.random.seed(42 + run * 17)
         n_sample = int(len(test_queries) * 0.9)
         indices = np.random.choice(len(test_queries), n_sample, replace=False)
         sampled_queries = [test_queries[i] for i in indices]
 
-        run_r = {m: {k: [] for k in metrics} for m in ['flat','forest']}
+        run_r = {m: {k: [] for k in metrics} for m in methods}
         for q in sampled_queries:
             q_emb = np.array(q['query_embedding'])
+            q_text = q.get('query', '')
             cdomain = q['correct_domain']
             csubcat = get_correct_subcat(q, skill_number_map)
             skill_id = q.get('correct_skill', None)
 
-            # Flat
+            # 1. FAISS (IVF+PQ)
             res_f, lat_f, tok_f = search_flat(q_emb, faiss_idx, all_apis, top_k=10)
             a1, a3, a5, mrr, _ = evaluate_retrieval(res_f, cdomain, skill_id, csubcat)
             run_r['flat']['acc@1'].append(a1); run_r['flat']['acc@3'].append(a3)
             run_r['flat']['acc@5'].append(a5); run_r['flat']['mrr'].append(mrr)
             run_r['flat']['latency'].append(lat_f); run_r['flat']['tokens'].append(tok_f)
 
-            # Forest
+            # 2. HNSW
+            res_h, lat_h = search_hnsw(q_emb, hnsw_idx, all_apis, top_k=10)
+            tok_h = sum(count_tokens(a['description']) for a in res_h)
+            a1, a3, a5, mrr, _ = evaluate_retrieval(res_h, cdomain, skill_id, csubcat)
+            run_r['hnsw']['acc@1'].append(a1); run_r['hnsw']['acc@3'].append(a3)
+            run_r['hnsw']['acc@5'].append(a5); run_r['hnsw']['mrr'].append(mrr)
+            run_r['hnsw']['latency'].append(lat_h); run_r['hnsw']['tokens'].append(tok_h)
+
+            # 3. BM25
+            if q_text:
+                res_b, lat_b = search_bm25(q_text, bm25_idx, all_apis, top_k=10)
+                tok_b = sum(count_tokens(a['description']) for a in res_b)
+                a1, a3, a5, mrr, _ = evaluate_retrieval(res_b, cdomain, skill_id, csubcat)
+                run_r['bm25']['acc@1'].append(a1); run_r['bm25']['acc@3'].append(a3)
+                run_r['bm25']['acc@5'].append(a5); run_r['bm25']['mrr'].append(mrr)
+                run_r['bm25']['latency'].append(lat_b); run_r['bm25']['tokens'].append(tok_b)
+
+            # 4. FAISS + Embedding Rerank
+            res_rr, lat_rr, _ = search_faiss_rerank(q_emb, faiss_idx, all_apis,
+                                                      top_k_retrieve=20, top_k_final=10)
+            tok_rr = sum(count_tokens(a['description']) for a in res_rr)
+            a1, a3, a5, mrr, _ = evaluate_retrieval(res_rr, cdomain, skill_id, csubcat)
+            run_r['faiss_rerank']['acc@1'].append(a1); run_r['faiss_rerank']['acc@3'].append(a3)
+            run_r['faiss_rerank']['acc@5'].append(a5); run_r['faiss_rerank']['mrr'].append(mrr)
+            run_r['faiss_rerank']['latency'].append(lat_rr); run_r['faiss_rerank']['tokens'].append(tok_rr)
+
+            # 5. Skill Forest
             res_fr, lat_fr, tok_fr, routed, _ = search_forest(q_emb, forest, top_k=10)
             a1, a3, a5, mrr, dacc = evaluate_retrieval(res_fr, cdomain, skill_id, csubcat)
             run_r['forest']['acc@1'].append(a1); run_r['forest']['acc@3'].append(a3)
@@ -190,9 +229,10 @@ def run_pure_retrieval(all_apis, test_queries, domains_dict, n_runs=5):
             run_r['forest']['latency'].append(lat_fr); run_r['forest']['tokens'].append(tok_fr)
             run_r['forest']['routing_acc'].append(dacc)
 
-        for m in ['flat', 'forest']:
+        for m in methods:
             for k in ['acc@1','acc@3','acc@5','mrr','latency','tokens']:
-                all_results[m][k].append(float(np.mean(run_r[m][k])))
+                if run_r[m][k]:
+                    all_results[m][k].append(float(np.mean(run_r[m][k])))
             if m == 'forest':
                 all_results[m]['routing_acc'].append(float(np.mean(run_r[m]['routing_acc'])))
 
@@ -202,15 +242,21 @@ def run_pure_retrieval(all_apis, test_queries, domains_dict, n_runs=5):
 # Layer 2: End-to-End (real mechanisms, not hardcoded)
 # ============================================================
 def run_end_to_end(all_apis, test_queries, domains_dict, n_runs=5):
+    """Layer 2: End-to-end token comparison across multiple baselines.
+    
+    Baselines: FAISS+LLM, HNSW+LLM, FAISS+Rerank+LLM, Forest+M4/M6/M9
+    """
     embeddings = np.array([a['embedding'] for a in all_apis])
     faiss_idx = build_faiss_index(embeddings)
+    hnsw_idx = build_hnsw_index(embeddings)
     forest = build_forest(all_apis, domains_dict)
     all_apis_by_id = {a['id']: a for a in all_apis}
     domain_names = list(forest.keys())
 
+    methods = ['flat_e2e', 'hnsw_e2e', 'faiss_rerank_e2e', 'forest_e2e']
     e2e_metrics = ['acc','total_tokens','retrieval_tokens','llm_tokens',
                    'routing_tokens','dependency_tokens','chain_completeness']
-    all_results = {m: {k: [] for k in e2e_metrics} for m in ['flat_e2e','forest_e2e']}
+    all_results = {m: {k: [] for k in e2e_metrics} for m in methods}
 
     for run in range(n_runs):
         np.random.seed(42 + run * 17)
@@ -218,16 +264,15 @@ def run_end_to_end(all_apis, test_queries, domains_dict, n_runs=5):
         indices = np.random.choice(len(test_queries), n_sample, replace=False)
         sampled_queries = [test_queries[i] for i in indices]
 
-        run_r = {m: {k: [] for k in e2e_metrics} for m in ['flat_e2e','forest_e2e']}
+        run_r = {m: {k: [] for k in e2e_metrics} for m in methods}
         for q in sampled_queries:
             q_emb = np.array(q['query_embedding'])
             cdomain = q['correct_domain']
 
-            # === Flat ANN + LLM reasoning (real token model) ===
+            # === 1. FAISS + LLM reasoning ===
             res_f, _, _ = search_flat(q_emb, faiss_idx, all_apis, top_k=10)
             acc_f = 1 if res_f and res_f[0].get('domain') == cdomain else 0
             flat_metrics = measure_e2e_tokens_flat_llm(res_f[:5], all_apis_by_id)
-
             run_r['flat_e2e']['acc'].append(acc_f)
             run_r['flat_e2e']['total_tokens'].append(flat_metrics['total_tokens'])
             run_r['flat_e2e']['retrieval_tokens'].append(flat_metrics['retrieval_tokens'])
@@ -236,7 +281,32 @@ def run_end_to_end(all_apis, test_queries, domains_dict, n_runs=5):
             run_r['flat_e2e']['dependency_tokens'].append(0)
             run_r['flat_e2e']['chain_completeness'].append(flat_metrics['chain_completeness'])
 
-            # === Forest + M4/M6/M9 (real mechanisms) ===
+            # === 2. HNSW + LLM reasoning ===
+            res_h, _ = search_hnsw(q_emb, hnsw_idx, all_apis, top_k=10)
+            acc_h = 1 if res_h and res_h[0].get('domain') == cdomain else 0
+            hnsw_metrics = measure_e2e_tokens_flat_llm(res_h[:5], all_apis_by_id)
+            run_r['hnsw_e2e']['acc'].append(acc_h)
+            run_r['hnsw_e2e']['total_tokens'].append(hnsw_metrics['total_tokens'])
+            run_r['hnsw_e2e']['retrieval_tokens'].append(hnsw_metrics['retrieval_tokens'])
+            run_r['hnsw_e2e']['llm_tokens'].append(hnsw_metrics['llm_tokens'])
+            run_r['hnsw_e2e']['routing_tokens'].append(0)
+            run_r['hnsw_e2e']['dependency_tokens'].append(0)
+            run_r['hnsw_e2e']['chain_completeness'].append(hnsw_metrics['chain_completeness'])
+
+            # === 3. FAISS Top-20 + Rerank + LLM ===
+            res_rr, _, stage1 = search_faiss_rerank(q_emb, faiss_idx, all_apis,
+                                                      top_k_retrieve=20, top_k_final=5)
+            acc_rr = 1 if res_rr and res_rr[0].get('domain') == cdomain else 0
+            rerank_metrics = measure_e2e_tokens_faiss_rerank(stage1[:20], res_rr, all_apis_by_id)
+            run_r['faiss_rerank_e2e']['acc'].append(acc_rr)
+            run_r['faiss_rerank_e2e']['total_tokens'].append(rerank_metrics['total_tokens'])
+            run_r['faiss_rerank_e2e']['retrieval_tokens'].append(rerank_metrics['retrieval_tokens'])
+            run_r['faiss_rerank_e2e']['llm_tokens'].append(rerank_metrics['llm_tokens'])
+            run_r['faiss_rerank_e2e']['routing_tokens'].append(0)
+            run_r['faiss_rerank_e2e']['dependency_tokens'].append(0)
+            run_r['faiss_rerank_e2e']['chain_completeness'].append(0)
+
+            # === 4. Forest + M4/M6/M9 ===
             res_fr, _, _, routed, _ = search_forest(q_emb, forest, top_k=10)
             acc_fr = 1 if routed == cdomain else 0
             top_skill = res_fr[0] if res_fr else None
@@ -249,7 +319,6 @@ def run_end_to_end(all_apis, test_queries, domains_dict, n_runs=5):
             routing_descs = [f"Domain: {d}" for d in domain_names]
             forest_metrics = measure_e2e_tokens_forest(
                 routing_descs, res_fr[:5], dep_chain, merged_params, all_apis_by_id)
-
             run_r['forest_e2e']['acc'].append(acc_fr)
             run_r['forest_e2e']['total_tokens'].append(forest_metrics['total_tokens'])
             run_r['forest_e2e']['retrieval_tokens'].append(forest_metrics['retrieval_tokens'])
@@ -258,9 +327,10 @@ def run_end_to_end(all_apis, test_queries, domains_dict, n_runs=5):
             run_r['forest_e2e']['dependency_tokens'].append(forest_metrics['dependency_tokens'])
             run_r['forest_e2e']['chain_completeness'].append(forest_metrics['chain_completeness'])
 
-        for m in ['flat_e2e', 'forest_e2e']:
+        for m in methods:
             for k in e2e_metrics:
-                all_results[m][k].append(float(np.mean(run_r[m][k])))
+                if run_r[m][k]:
+                    all_results[m][k].append(float(np.mean(run_r[m][k])))
 
     return all_results
 
@@ -356,65 +426,96 @@ def generate_all_visualizations(pure_results, e2e_results, scale_results, skill_
     print("\nGenerating visualizations...")
     setup_plot_style()
 
-    # --- Fig 1: Pure Retrieval Accuracy (subcat-level, differentiated) ---
-    fig, ax = plt.subplots(figsize=(10, 6))
-    metrics = ['acc@1', 'acc@3', 'acc@5', 'mrr']
-    x = np.arange(len(metrics))
-    width = 0.30
-    for i, m in enumerate(['flat', 'forest']):
-        means = [np.mean(pure_results[m][met]) for met in metrics]
-        stds = [np.std(pure_results[m][met]) for met in metrics]
-        color = COLORS.get(m, '#95A5A6')
-        label = 'Flat ANN (FAISS)' if m == 'flat' else 'Skill Forest (Ours)'
-        bars = ax.bar(x + i * width, means, width, yerr=stds, capsize=4, color=color, label=label, alpha=0.9)
-        for bar, mean in zip(bars, means):
-            ax.text(bar.get_x() + bar.get_width()/2., bar.get_height() + 0.005,
-                    f'{mean:.3f}', ha='center', va='bottom', fontsize=9, fontweight='bold')
-    ax.set_xticks(x + width/2)
-    ax.set_xticklabels(['Accuracy@1', 'Accuracy@3', 'Accuracy@5', 'MRR'])
+    method_labels = {
+        'flat': 'FAISS\n(IVF+PQ)', 'hnsw': 'HNSW', 'bm25': 'BM25',
+        'faiss_rerank': 'FAISS\n+Rerank', 'forest': 'Skill Forest\n(Ours)',
+    }
+    method_colors = {
+        'flat': '#3498DB', 'hnsw': '#2ECC71', 'bm25': '#7F8C8D',
+        'faiss_rerank': '#E67E22', 'forest': '#E74C3C',
+    }
+
+    # --- Fig 1: Pure Retrieval Accuracy (all baselines) ---
+    methods_with_data = [m for m in ['flat', 'hnsw', 'bm25', 'faiss_rerank', 'forest']
+                         if pure_results.get(m, {}).get('acc@5')]
+    fig, axes = plt.subplots(1, 2, figsize=(16, 7))
+
+    # Left: Acc@5 and MRR grouped bar
+    ax = axes[0]
+    x = np.arange(len(methods_with_data))
+    width = 0.35
+    acc5_means = [np.mean(pure_results[m]['acc@5']) for m in methods_with_data]
+    acc5_stds = [np.std(pure_results[m]['acc@5']) for m in methods_with_data]
+    mrr_means = [np.mean(pure_results[m]['mrr']) for m in methods_with_data]
+    mrr_stds = [np.std(pure_results[m]['mrr']) for m in methods_with_data]
+    colors = [method_colors.get(m, '#95A5A6') for m in methods_with_data]
+    bars1 = ax.bar(x - width/2, acc5_means, width, yerr=acc5_stds, capsize=3,
+                   color=colors, alpha=0.85, label='Accuracy@5')
+    bars2 = ax.bar(x + width/2, mrr_means, width, yerr=mrr_stds, capsize=3,
+                   color=colors, alpha=0.5, label='MRR', hatch='//')
+    for bar, val in zip(bars1, acc5_means):
+        ax.text(bar.get_x() + bar.get_width()/2., bar.get_height() + 0.005,
+                f'{val:.3f}', ha='center', va='bottom', fontsize=9, fontweight='bold')
+    ax.set_xticks(x)
+    ax.set_xticklabels([method_labels.get(m, m) for m in methods_with_data], fontsize=9)
     ax.set_ylabel('Score')
-    ax.set_title('Layer 1: Pure Retrieval Performance (Subcategory-level)', fontweight='bold', pad=15)
-    ax.legend(loc='best', framealpha=0.9)
+    ax.set_title('Retrieval Accuracy Comparison', fontweight='bold', pad=15)
+    ax.legend(loc='upper left')
     ax.grid(axis='y', alpha=0.3, linestyle='--')
     ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
+
+    # Right: Latency comparison
+    ax = axes[1]
+    latency_means = [np.mean(pure_results[m]['latency']) for m in methods_with_data]
+    latency_stds = [np.std(pure_results[m]['latency']) for m in methods_with_data]
+    bars = ax.bar(x, latency_means, yerr=latency_stds, capsize=3, color=colors, alpha=0.85)
+    for bar, val in zip(bars, latency_means):
+        ax.text(bar.get_x() + bar.get_width()/2., bar.get_height() + 0.01,
+                f'{val:.2f}ms', ha='center', va='bottom', fontsize=9, fontweight='bold')
+    ax.set_xticks(x)
+    ax.set_xticklabels([method_labels.get(m, m) for m in methods_with_data], fontsize=9)
+    ax.set_ylabel('Latency (ms)')
+    ax.set_title('Retrieval Latency Comparison', fontweight='bold', pad=15)
+    ax.grid(axis='y', alpha=0.3, linestyle='--')
+    ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
+    plt.tight_layout()
     save_figure(fig, VIS_DIR, 'fig1_纯检索准确率_CN.png')
     save_figure(fig, VIS_DIR, 'fig1_pure_retrieval_EN.png')
 
-    # --- Fig 2: End-to-End Token Comparison ---
-    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
-    ax = axes[0]
-    categories = ['Retrieval', 'LLM Reasoning', 'Routing', 'Dependency']
-    flat_vals = [np.mean(e2e_results['flat_e2e']['retrieval_tokens']),
-                 np.mean(e2e_results['flat_e2e']['llm_tokens']), 0, 0]
-    forest_vals = [np.mean(e2e_results['forest_e2e']['retrieval_tokens']),
-                   np.mean(e2e_results['forest_e2e']['llm_tokens']),
-                   np.mean(e2e_results['forest_e2e']['routing_tokens']),
-                   np.mean(e2e_results['forest_e2e']['dependency_tokens'])]
-    x = np.arange(len(categories))
-    ax.bar(x - 0.15, flat_vals, 0.3, label='Flat ANN + LLM', color=COLORS['flat'], alpha=0.9)
-    ax.bar(x + 0.15, forest_vals, 0.3, label='Forest + M4/M6/M9', color=COLORS['forest'], alpha=0.9)
-    ax.set_xticks(x); ax.set_xticklabels(categories)
-    ax.set_ylabel('Tokens'); ax.set_title('Token Breakdown by Component', fontweight='bold')
-    ax.legend(); ax.grid(axis='y', alpha=0.3, linestyle='--')
+    # --- Fig 2: End-to-End Token Comparison (all baselines) ---
+    e2e_method_labels = {
+        'flat_e2e': 'FAISS\n+LLM', 'hnsw_e2e': 'HNSW\n+LLM',
+        'faiss_rerank_e2e': 'FAISS+Rerank\n+LLM', 'forest_e2e': 'Skill Forest\n+M4/M6/M9',
+    }
+    e2e_method_colors = {
+        'flat_e2e': '#3498DB', 'hnsw_e2e': '#2ECC71',
+        'faiss_rerank_e2e': '#E67E22', 'forest_e2e': '#E74C3C',
+    }
+    e2e_methods_with_data = [m for m in ['flat_e2e', 'hnsw_e2e', 'faiss_rerank_e2e', 'forest_e2e']
+                             if e2e_results.get(m, {}).get('total_tokens')]
 
-    ax = axes[1]
-    flat_total = np.mean(e2e_results['flat_e2e']['total_tokens'])
-    forest_total = np.mean(e2e_results['forest_e2e']['total_tokens'])
-    flat_std = np.std(e2e_results['flat_e2e']['total_tokens'])
-    forest_std = np.std(e2e_results['forest_e2e']['total_tokens'])
-    bars = ax.bar(['Flat ANN + LLM\nReasoning', 'Forest + M4/M6/M9\nStructured'],
-                  [flat_total, forest_total], yerr=[flat_std, forest_std],
-                  capsize=5, color=[COLORS['flat'], COLORS['forest']], alpha=0.9, width=0.5)
-    stds_e2e = [flat_std, forest_std]
-    for bar, mean, std in zip(bars, [flat_total, forest_total], stds_e2e):
-        ax.text(bar.get_x() + bar.get_width()/2., bar.get_height() + 20,
-                f'{mean:.0f}±{std:.0f}',
-                ha='center', va='bottom', fontsize=11, fontweight='bold')
-    savings = (flat_total - forest_total) / flat_total * 100 if flat_total > 0 else 0
-    ax.text(0.5, 0.95, f'Forest saves {savings:.0f}% tokens', transform=ax.transAxes,
-            ha='center', fontsize=14, fontweight='bold', color='green')
-    ax.set_ylabel('Total Tokens'); ax.set_title('End-to-End Token Consumption', fontweight='bold')
+    fig, ax = plt.subplots(figsize=(12, 7))
+    x = np.arange(len(e2e_methods_with_data))
+    tok_means = [np.mean(e2e_results[m]['total_tokens']) for m in e2e_methods_with_data]
+    tok_stds = [np.std(e2e_results[m]['total_tokens']) for m in e2e_methods_with_data]
+    colors_e2e = [e2e_method_colors.get(m, '#95A5A6') for m in e2e_methods_with_data]
+    bars = ax.bar(x, tok_means, yerr=tok_stds, capsize=5, color=colors_e2e, alpha=0.85, width=0.55)
+    for bar, val, std in zip(bars, tok_means, tok_stds):
+        ax.text(bar.get_x() + bar.get_width()/2., bar.get_height() + 15,
+                f'{val:.0f}±{std:.0f}', ha='center', va='bottom', fontsize=11, fontweight='bold')
+    # Add savings annotation
+    if 'flat_e2e' in e2e_methods_with_data and 'forest_e2e' in e2e_methods_with_data:
+        flat_tok = np.mean(e2e_results['flat_e2e']['total_tokens'])
+        forest_tok = np.mean(e2e_results['forest_e2e']['total_tokens'])
+        savings = (flat_tok - forest_tok) / flat_tok * 100 if flat_tok > 0 else 0
+        ax.text(0.98, 0.95, f'Forest saves {savings:.0f}% vs FAISS+LLM',
+                transform=ax.transAxes, ha='right', fontsize=13, fontweight='bold', color='green')
+    ax.set_xticks(x)
+    ax.set_xticklabels([e2e_method_labels.get(m, m) for m in e2e_methods_with_data], fontsize=10)
+    ax.set_ylabel('Total Token Consumption')
+    ax.set_title('End-to-End Token Consumption Comparison', fontweight='bold', pad=15)
     ax.grid(axis='y', alpha=0.3, linestyle='--')
+    ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
     plt.tight_layout()
     save_figure(fig, VIS_DIR, 'fig2_端到端Token_CN.png')
     save_figure(fig, VIS_DIR, 'fig2_e2e_token_EN.png')
@@ -626,22 +727,35 @@ def main():
     print("\n" + "=" * 60)
     print("RESULTS SUMMARY")
     print("=" * 60)
-    print("\n--- Layer 1: Pure Retrieval (subcat-level) ---")
-    for m in ['flat', 'forest']:
-        print(f"\n{'Flat ANN' if m == 'flat' else 'Forest'}:")
-        for k in ['acc@1', 'acc@3', 'acc@5', 'mrr']:
-            if k in summary[m]:
-                print(f"  {k}: {summary[m][k]['mean']:.3f} ± {summary[m][k]['std']:.3f}")
-        if 'routing_acc' in summary.get(m, {}):
-            print(f"  routing_acc: {summary[m]['routing_acc']['mean']:.3f} ± {summary[m]['routing_acc']['std']:.3f}")
 
+    method_names = {
+        'flat': 'FAISS (IVF+PQ)', 'hnsw': 'HNSW', 'bm25': 'BM25',
+        'faiss_rerank': 'FAISS+Rerank', 'forest': 'Skill Forest (Ours)',
+    }
+    print("\n--- Layer 1: Pure Retrieval (subcat-level) ---")
+    for m in ['flat', 'hnsw', 'bm25', 'faiss_rerank', 'forest']:
+        if m in summary and summary[m].get('acc@5'):
+            print(f"\n{method_names.get(m, m)}:")
+            for k in ['acc@1', 'acc@3', 'acc@5', 'mrr']:
+                if k in summary[m]:
+                    print(f"  {k}: {summary[m][k]['mean']:.3f} ± {summary[m][k]['std']:.3f}")
+            if 'latency' in summary[m]:
+                print(f"  latency: {summary[m]['latency']['mean']:.2f} ± {summary[m]['latency']['std']:.2f} ms")
+            if m == 'forest' and 'routing_acc' in summary[m]:
+                print(f"  routing_acc: {summary[m]['routing_acc']['mean']:.3f} ± {summary[m]['routing_acc']['std']:.3f}")
+
+    e2e_names = {
+        'flat_e2e': 'FAISS+LLM', 'hnsw_e2e': 'HNSW+LLM',
+        'faiss_rerank_e2e': 'FAISS+Rerank+LLM', 'forest_e2e': 'Forest+M4/M6/M9',
+    }
     print("\n--- Layer 2: End-to-End ---")
-    for m in ['flat_e2e', 'forest_e2e']:
-        label = 'Flat+LLM' if 'flat' in m else 'Forest+M4/M6/M9'
-        print(f"\n{label}:")
-        for k in ['total_tokens', 'llm_tokens', 'acc', 'chain_completeness']:
-            v = e2e_results[m][k]
-            print(f"  {k}: {np.mean(v):.3f} ± {np.std(v):.3f}")
+    for m in ['flat_e2e', 'hnsw_e2e', 'faiss_rerank_e2e', 'forest_e2e']:
+        if m in e2e_results and e2e_results[m].get('total_tokens'):
+            print(f"\n{e2e_names.get(m, m)}:")
+            for k in ['total_tokens', 'llm_tokens', 'acc', 'chain_completeness']:
+                v = e2e_results[m][k]
+                if v:
+                    print(f"  {k}: {np.mean(v):.3f} ± {np.std(v):.3f}")
 
     print("\n--- Scale Experiment ---")
     for i, N in enumerate(skill_counts):
